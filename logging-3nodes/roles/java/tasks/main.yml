@@ -1,0 +1,30 @@
+---
+#- name: Add the webupd8 APT repository
+#  tags:
+#    - java
+#  apt_repository: repo=ppa:webupd8team/java state=present
+#
+#- name: Automatically select the Oracle License
+#  tags: java
+#  shell: echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+#
+#- name: Install Oracle Java, this anction will set the default jvm to oracle-java7
+#  tags: java
+#  apt: pkg={{ item }} update-cache=yes state=latest
+#  with_items: oracle-java7-installer
+
+
+
+- name: copy tgz file
+  copy:
+    src: "{{java_pkg}}"
+    dest: "/opt/{{java_pkg}}"
+
+- name: Unpack archive
+  unarchive: src=/opt/{{java_pkg}} dest=/opt/ copy=no
+
+- name: Make Java available for system
+  command: 'update-alternatives --install "/usr/bin/java" "java" "/opt/{{java_name}}/bin/java" 2000'
+
+- name: Clean up
+  file: state=absent path=/opt/{{java_pkg}}

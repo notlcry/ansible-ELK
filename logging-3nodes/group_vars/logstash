@@ -1,0 +1,10 @@
+# Here are variables related to the logstash
+zookeeper1: 11.111.1.137:2181
+zookeeper2: 11.111.1.138:2181
+zookeeper3: 11.111.1.139:2181
+
+elasticsearch1: 11.111.1.137:9200
+elasticsearch2: 11.111.1.138:9200
+elasticsearch3: 11.111.1.139:9200
+
+avro_codec_conf: vms-avro-codec.json

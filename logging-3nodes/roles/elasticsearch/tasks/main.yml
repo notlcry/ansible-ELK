@@ -1,0 +1,35 @@
+---
+
+- name: check if Elasticsearch is already installed
+  stat: path="/opt/elasticsearch-{{ elasticsearch_version }}"
+  changed_when: false
+  register: installed
+
+#- name: get Elasticsearch package
+#  get_url: url=https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/{{ elasticsearch_version }}/elasticsearch-{{ elasticsearch_version }}.deb dest=/tmp/es.deb
+#  when: not installed.stat.exists
+
+- name: copy deb file
+  copy:
+    src: "{{elasticsearch_pkg}}"
+    dest: "/opt/{{elasticsearch_pkg}}"
+
+
+- name: install from DEB
+  apt: deb=/opt/{{elasticsearch_pkg}}
+
+##- name: unarchive elasticsearch
+##  remote_user: elasticsearch
+##  unarchive: src=/tmp/elasticsearch-{{elasticsearch_version}}.tar.gz dest=/opt/ copy=no
+##  notify:
+##    - remove elasticsearch archive
+##  when: not installed.stat.exists
+
+- name: modify the init(service) file, force use ipv4
+  lineinfile: dest=/etc/init.d/elasticsearch regexp="^export ES_HEAP_SIZE" insertbefore="^export ES_HEAP_SIZE" line="export ES_USE_IPV4=yes"
+
+- name: copy conf file
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+  notify: restart elasticsearch

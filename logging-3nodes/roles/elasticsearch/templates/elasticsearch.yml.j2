@@ -1,0 +1,4 @@
+cluster.name: VMS_ES_CLUSTER
+node.name: {{ansible_hostname}}
+network.host: _non_loopback:ipv4_
+discovery.zen.ping.unicast.hosts: ["{{es_host1}}"]

@@ -1,0 +1,44 @@
+# Here are variables related to the logstash
+
+
+##version must be full name, like: 2.0   and must be equals the official version. 2.0.0 is a error vaule.
+logstash_version: 2.0
+logstash_pkg: logstash_2.0.deb
+
+logstash_plugin_name: logstash-codec-avro
+logstash_plugin_pkg: logstash-codec-avro-2.0.2.gem
+
+zookeeper1: 11.111.1.152:2181
+zookeeper2: 11.111.1.153:2181
+zookeeper3: 11.111.1.154:2181
+
+elasticsearch1: 11.111.1.152:9200
+elasticsearch2: 11.111.1.153:9200
+elasticsearch3: 11.111.1.154:9200
+
+avro_codec_conf: /opt/logstash/vms-avro-codec.json
+
+# Here are variables related to the elasticsearch
+
+##version must be full name, like: 2.x.x
+elasticsearch_version: 2.0.0
+elasticsearch_pkg: elasticsearch_2.0.deb
+
+elastic_conf: "/etc/elasticsearch/elasticsearch.yml"
+es_host1: 11.111.1.152
+es_host2: 11.111.1.153
+es_host3: 11.111.1.154
+
+
+# Here are variables related to the kibana
+kibana_version: 4.2.0
+kibana_pkg: kibana-4.2.0-linux-x64.tar.gz
+kibana_name: kibana-4.2.0-linux-x64
+es_host1_url: http://11.111.1.152:9200
+es_host2_url: http://11.111.1.153:9200
+es_host3_url: http://11.111.1.154:9200
+
+
+# Here are variables related to the Java
+java_pkg: jdk-8u65-linux-x64.gz
+java_name: jdk1.8.0_65

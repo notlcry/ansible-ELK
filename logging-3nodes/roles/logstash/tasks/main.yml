@@ -1,0 +1,62 @@
+---
+
+#- name: Add Logstash repo  key
+#  apt_key: url="http://packages.elasticsearch.org/GPG-KEY-elasticsearch" state=present
+#
+#- name: Enable Logstash repository
+#  apt_repository: repo="deb http://packages.elasticsearch.org/logstash/{{ logstash_version }}/debian stable main" state=present
+#
+#- name: Install Logstash from repository
+#  apt: pkg={{ item }} update_cache=yes state=present
+#  with_items:
+#   - logstash
+- name: copy deb file
+  copy:
+    src: "{{logstash_pkg}}"
+    dest: "/opt/{{logstash_pkg}}"
+
+- name: install from DEB
+  apt: deb=/opt/{{logstash_pkg}}
+
+- name: plugins | collecting installed plugins
+  shell: /opt/logstash/bin/plugin list
+  register: logstash_plugins_installed
+  always_run: true  #allows checks and diffs to pass
+
+#- name: plugins | installing logstash plugins online install
+#  command: /opt/logstash/bin/plugin install {{ item }}
+#  notify: restart logstash
+#  with_items: logstash-codec-avro
+#  when: item not in logstash_plugins_installed.stdout
+
+
+
+- name: copy the plugin gem file
+  copy: src={{logstash_plugin_pkg}} dest=/opt/logstash/{{logstash_plugin_pkg}}
+
+- name: plugins | installing logstash plugins local install
+  command: /opt/logstash/bin/plugin install /opt/logstash/{{logstash_plugin_pkg}}
+  notify: restart logstash
+  with_items: {{logstash_plugin_name}}
+  when: item not in logstash_plugins_installed.stdout
+
+
+#- name: get the stat of directory
+#  stat: path=/opt/logstash/conf.d
+#  register: p
+#
+#- debug: var=p
+#
+#- name: create the conf.d directory
+#  command: mkdir -p /opt/logstash/conf.d
+#  when: not p.stat.exists
+
+- name: copy the avro_codec_conf
+  copy: src=vms-avro-codec.json dest={{avro_codec_conf}}
+
+- name: copy conf file
+  template:
+    src: elk-pipeline.conf.j2
+    dest: /etc/logstash/conf.d/elk-pipeline.conf
+    ###dest: "/opt/logstash/conf.d/elk-pipeline.conf"
+  notify: restart logstash

@@ -1,0 +1,12 @@
+---
+# This playbook deploys a simple  Apache2 server.
+
+- hosts: local
+  remote_user: huiy2
+  sudo: yes
+
+  roles:
+    - java
+    - logstash
+    - elasticsearch
+    - kibana

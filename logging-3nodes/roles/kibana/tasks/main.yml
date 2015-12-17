@@ -1,0 +1,25 @@
+---
+
+#- name: Download archive
+#  get_url: url=https://download.elastic.co/kibana/kibana/kibana-{{kibana_version}}-linux-x64.tar.gz dest=/tmp
+
+
+- name: copy tgz file
+  copy:
+    src: "{{kibana_pkg}}"
+    dest: "/opt/{{kibana_pkg}}"
+
+- name: Unarchive kibana
+  unarchive: src=/opt/{{kibana_pkg}} dest=/opt/ copy=no
+
+- name: move /opt/{{kibana_name}} to /opt/kibana
+  command: mv /opt/{{kibana_name}} /opt/kibana
+
+- name: copy service init file
+  copy: src=kibana dest=/etc/init.d/kibana mode=0755
+
+- name: copy conf file
+  template:
+    src: kibana.yml.j2
+    dest: /opt/kibana/config/kibana.yml
+  notify: restart kibana

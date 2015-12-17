@@ -1,0 +1,53 @@
+input {
+    tcp {
+        port => 8889
+        codec => json
+    }
+    kafka {
+        zk_connect => "{{zookeeper1}},{{zookeeper2}},{{zookeeper3}}"
+        group_id => "group-elk"
+        white_list => "avro.trap.all,avro.log.nso,avro.log.asa,avro.log.isr,avro.log.csr,avro.log.wsa,avro.log.asr9k,avro.tca.asa,avro.tca.csr,avro.tca.isr,avro.tca.nso,avro.log.esc"
+        codec => avro {
+            schema_uri => "{{avro_codec_conf}}"
+        }
+    }
+}
+filter {
+    json {
+        source => "rawdata"
+    }
+    mutate {
+        remove_field => "rawdata"
+    }
+    if [type] == "esc_health_log" {
+        mutate {
+            add_field => ["nagios_host", "ESC-01"]
+            add_field => ["nagios_service", "esc_health.sh"]
+        }
+    }
+}
+output {
+    stdout { codec => rubydebug { metadata => true } }
+    elasticsearch {
+        hosts => ["{{elasticsearch1}}","{{elasticsearch2}}","{{elasticsearch3}}"]
+        index => "vms-log_%{+YYYY.MM.dd}"
+    }
+    if [type] == "esc_health_log" {
+        if [message] =~ "^PASSED" {
+            nagios {
+                nagios_level => "0"
+                commandfile => "/usr/local/nagios/var/rw/nagios.cmd"
+            }
+        } else if [message] =~ "ERROR"{
+            nagios {
+                nagios_level => "1"
+                commandfile => "/usr/local/nagios/var/rw/nagios.cmd"
+            }
+        } else if [message] =~ "FAILED" {
+            nagios {
+                nagios_level => "2"
+                commandfile => "/usr/local/nagios/var/rw/nagios.cmd"
+            }
+        }
+    }
+}
